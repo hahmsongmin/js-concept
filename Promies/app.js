@@ -30,6 +30,7 @@
 // 즉 Promise.all은 순서대로 실행되지만 앞의 함수가 완료되는 것을
 // 기다리지 않고, 비동기적으로 병렬로 실행
 // 총 마지막 완료되는 함수까지 기달렸다가 값을 반환한다.
+// 하나 라도 실패하면 X
 /* ⚡ https://code-masterjung.tistory.com/91 */
 
 // const p1 = new Promise(resolve => {
@@ -84,7 +85,7 @@
 // .then(content => console.log(content))
 // .catch(error => console.log(`${error}❌`));
 
-"use strict";
+'use strict';
 //🍕 Promise is a JS object for asynchronous operation.
 // State : pending -> fulfilled or rejected
 // Producer vs Consumer
@@ -95,8 +96,8 @@
 const promise = new Promise((res, rej) => {
   // doing some heavy work(network, read files)
   setTimeout(() => {
-    res("IvanSelah");
-    rej(new Error("no no no"));
+    res('IvanSelah');
+    rej(new Error('no no no'));
   }, 2000);
 });
 
@@ -109,7 +110,7 @@ promise
     console.log(error);
   })
   .finally(() => {
-    console.log("finish");
+    console.log('finish');
   });
 
 // 3. Promise chaining
@@ -131,7 +132,7 @@ fetchNumber
 
 const getHen = () =>
   new Promise((resolve, reject) => {
-    setTimeout(() => resolve("🐓"), 1000);
+    setTimeout(() => resolve('🐓'), 1000);
   });
 
 const getEgg = (hen) =>
@@ -147,8 +148,36 @@ const cook = (egg) =>
 getHen() //
   .then(getEgg)
   .catch((error) => {
-    return "🍕";
+    return '🍕';
   })
   .then(cook)
   .then(console.log)
   .catch(console.log);
+
+// ✅ ES2020 Promise allSettled
+
+// Promise All,
+// 모두가 성공해야 함
+// => 서로 상관이 있는 Promise들을 동작시킬 때 사용
+const p = Promise.all([
+  fetch('https://yts.mx/api/v2/list_movies.json'),
+  fetch('https://yts.mx/api/v2/list_movies.json'),
+  fetch('https://yts.mx/api/v2/list_movies.json'),
+  fetch('https://yts.mx/api/v2/list_movies.json'),
+])
+  .then((response) => console.log('succes!', response))
+  .catch((e) => console.log('error', e));
+
+// Promise All 과 다르게 Promise.allSettled는 모두 성공할 필요 없음
+// 에러가 있던 없던 상관없이 Promise만 끝나면 됨
+
+// => 모든 Promise가 잘 작동하는지 확인할 필요가 없으면 allSettled 사용
+// 서로 독립적일 때
+const h = Promise.allSettled([
+  fetch('https://yts.mx/api/v2/list_movies.json'),
+  fetch('https://yts.mx/api/v2/list_movies'),
+  fetch('https://yts.mx/api/v2/list_movies.json'),
+  fetch('https://yts.mx/api/v2/list_movies.json'),
+])
+  .then((response) => console.log('succes!', response))
+  .catch((e) => console.log('error', e));
